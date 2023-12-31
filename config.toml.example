@@ -1,0 +1,11 @@
+[discord]
+token = ""
+
+[steam]
+url = ""
+
+[updown]
+url = ""
+
+[ide]
+key = ""
