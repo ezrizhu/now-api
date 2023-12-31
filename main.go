@@ -29,6 +29,7 @@ var (
 	k = koanf.New(".")
 
 	discordToken string
+	discordId    string
 	steamUrl     string
 	updownUrl    string
 	ideKey       string
@@ -41,6 +42,7 @@ func main() {
 	}
 
 	discordToken = k.String("discord.token")
+	discordId = k.String("discord.id")
 	steamUrl = k.String("steam.url")
 	updownUrl = k.String("updown.url")
 	ideKey = k.String("ide.key")

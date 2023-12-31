@@ -1,5 +1,6 @@
 [discord]
 token = ""
+id = ""
 
 [steam]
 url = ""

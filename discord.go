@@ -8,8 +8,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const discordId = "691734266458931341"
-
 type Discord struct {
 	Mu     sync.Mutex `json:"-"`
 	Status Status     `json:"status"`
