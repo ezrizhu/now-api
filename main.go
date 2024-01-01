@@ -87,6 +87,7 @@ func main() {
 	}()
 
 	r := chi.NewRouter()
+
 	r.Get("/steam", func(w http.ResponseWriter, r *http.Request) {
 		// output steamProfile in json
 		steamProfile.Mu.Lock()
@@ -97,6 +98,21 @@ func main() {
 		}
 		fmt.Fprintf(w, string(out))
 	})
+
+	r.Get("/steam.text", func(w http.ResponseWriter, r *http.Request) {
+		// output steamProfile in json
+		steamProfile.Mu.Lock()
+		defer steamProfile.Mu.Unlock()
+		out := ""
+		out += "Status: " + steamProfile.PersonaState + "\n"
+		if steamProfile.IsGaming {
+			out += "Game: " + steamProfile.GameExtraInfo + "\n"
+		}
+		out += "Last logoff: " + steamProfile.LastLogoff + "\n"
+
+		fmt.Fprintf(w, out)
+	})
+
 	r.Get("/ezricloud", func(w http.ResponseWriter, r *http.Request) {
 		// output cloud in json
 		cloud.Mu.Lock()
@@ -107,6 +123,20 @@ func main() {
 		}
 		fmt.Fprintf(w, string(out))
 	})
+
+	r.Get("/ezricloud.text", func(w http.ResponseWriter, r *http.Request) {
+		// output cloud in json
+		cloud.Mu.Lock()
+		defer cloud.Mu.Unlock()
+		out := ""
+		if cloud.IsDown {
+			out += "EzriCloud: Outage since " + cloud.DownSince + "\n"
+		} else {
+			out += "EzriCloud: All Systems Operational\n"
+		}
+		fmt.Fprintf(w, out)
+	})
+
 	r.Post("/ide0", func(w http.ResponseWriter, r *http.Request) {
 		// verify key
 		key := r.Header.Get("Authorization")
@@ -128,6 +158,7 @@ func main() {
 		workstation.LastUpdate = time.Now()
 		log.Info().Msg("ide0: " + workstation.Status)
 	})
+
 	r.Get("/ide0", func(w http.ResponseWriter, r *http.Request) {
 		// output ide0 in json
 		workstation.Mu.Lock()
@@ -138,6 +169,20 @@ func main() {
 		}
 		fmt.Fprintf(w, string(out))
 	})
+
+	r.Get("/ide0.text", func(w http.ResponseWriter, r *http.Request) {
+		workstation.Mu.Lock()
+		defer workstation.Mu.Unlock()
+
+		out := ""
+		if workstation.Status != "" {
+			out += workstation.Status + "\n"
+		}
+		out += "Last Update: " + workstation.LastUpdate.Format("15:04:05 MST")
+
+		fmt.Fprintf(w, out)
+	})
+
 	r.Get("/discord", func(w http.ResponseWriter, r *http.Request) {
 		// output discord in json
 		discord.Mu.Lock()
@@ -147,6 +192,28 @@ func main() {
 			log.Error().Err(err).Msg("Could not marshal discord")
 		}
 		fmt.Fprintf(w, string(out))
+	})
+
+	r.Get("/discord.text", func(w http.ResponseWriter, r *http.Request) {
+		discord.Mu.Lock()
+		defer discord.Mu.Unlock()
+
+		out := ""
+		status := discord.Status
+		if status.StatusDesk != "" {
+			out += "Desktop: " + status.StatusDesk + "\n"
+		}
+		if status.StatusWeb != "" {
+			out += "Web: " + status.StatusWeb + "\n"
+		}
+		if status.StatusMobile != "" {
+			out += "Mobile: " + status.StatusMobile + "\n"
+		}
+		if status.CustomStatus != "" {
+			out += "Custom Status: " + status.CustomStatus + "\n"
+		}
+		out += "Last Update: " + status.UpdatedAt
+		fmt.Fprintf(w, out)
 	})
 
 	http.ListenAndServe(":8080", r)

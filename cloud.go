@@ -27,6 +27,7 @@ func (c *Cloud) check() {
 		log.Error().
 			Err(err).
 			Msg("Error getting updown.io status")
+		return
 	}
 
 	defer resp.Body.Close()
@@ -35,6 +36,7 @@ func (c *Cloud) check() {
 		log.Error().
 			Err(err).
 			Msg("Error reading updown.io response")
+		return
 	}
 
 	updownResp := UpdownResp{}
@@ -43,6 +45,7 @@ func (c *Cloud) check() {
 		log.Error().
 			Err(err).
 			Msg("Error unmarshalling updown.io response")
+		return
 	}
 
 	for _, check := range updownResp {

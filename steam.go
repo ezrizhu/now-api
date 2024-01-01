@@ -42,6 +42,7 @@ func (profile *SteamProfile) update() {
 		log.Error().
 			Err(err).
 			Msg("Error fetching steam status")
+		return
 	}
 
 	defer resp.Body.Close()
@@ -50,6 +51,7 @@ func (profile *SteamProfile) update() {
 		log.Error().
 			Err(err).
 			Msg("Error reading steam status response body")
+		return
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -57,6 +59,7 @@ func (profile *SteamProfile) update() {
 			Int("status", resp.StatusCode).
 			Str("body", string(respBytes)).
 			Msg("Error fetching steam status")
+		return
 	}
 
 	steamStatusResp := SteamProfileResp{}
@@ -66,6 +69,7 @@ func (profile *SteamProfile) update() {
 		log.Error().
 			Err(err).
 			Msg("Error unmarshalling steam status response")
+		return
 	}
 
 	profile.Mu.Lock()
@@ -74,7 +78,7 @@ func (profile *SteamProfile) update() {
 	profile.PersonaName = steamStatusResp.Response.Players[0].PersonaName
 	profile.ProfileUrl = steamStatusResp.Response.Players[0].ProfileUrl
 	profile.Avatar = steamStatusResp.Response.Players[0].Avatar
-	profile.LastLogoff = time.Unix(steamStatusResp.Response.Players[0].LastLogoff, 0).Format("2006-01-02 15:04:05")
+	profile.LastLogoff = time.Unix(steamStatusResp.Response.Players[0].LastLogoff, 0).Format("2006-01-02 15:04:05 MST")
 
 	if steamStatusResp.Response.Players[0].GameId != "" {
 		profile.IsGaming = true

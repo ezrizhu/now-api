@@ -47,7 +47,9 @@ func presenceUpdateHandler(s *discordgo.Session, p *discordgo.PresenceUpdate) {
 	for _, activity := range p.Activities {
 		if activity.Type != discordgo.ActivityTypeCustom {
 			continue
-		} else if activity.Name == "Custom Status" {
+		}
+
+		if activity.Name == "Custom Status" {
 			status.CustomStatus = activity.State
 			emoji := "https://cdn.discordapp.com/emojis/"
 			emoji += activity.Emoji.ID
@@ -61,6 +63,6 @@ func presenceUpdateHandler(s *discordgo.Session, p *discordgo.PresenceUpdate) {
 		}
 	}
 
-	status.UpdatedAt = time.Now().Format(time.RFC3339)
+	status.UpdatedAt = time.Now().Format("15:04:05 MST")
 	log.Info().Msg("Discord status updated")
 }
