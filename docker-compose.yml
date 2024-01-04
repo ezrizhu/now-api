@@ -1,0 +1,7 @@
+services:
+  now-api:
+    ports:
+      - "8082:8080"
+    volumes:
+      - "./config.toml:/app/config.toml"
+    image: "now-api"
