@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
@@ -16,6 +17,7 @@ import (
 	"github.com/knadh/koanf/parsers/toml"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/v2"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
@@ -36,6 +38,19 @@ var (
 )
 
 func main() {
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	debug := flag.Bool("debug", false, "sets log level to debug")
+
+	flag.Parse()
+
+	// Default level for this example is info, unless debug flag is present
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	if *debug {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
+
+	log.Debug().Msg("Debug mode enabled")
+
 	// load config
 	if err := k.Load(file.Provider("config.toml"), toml.Parser()); err != nil {
 		log.Error().Err(err).Msg("Could not load config")
@@ -77,11 +92,11 @@ func main() {
 	// run steamProfile.update() every 5 minutes
 	go func() {
 		for {
-			log.Info().Msg("Updating")
+			log.Debug().Msg("Updating")
 			steamProfile.update()
-			log.Info().Msg("steam updated")
+			log.Debug().Msg("steam updated")
 			cloud.check()
-			log.Info().Msg("updown updated")
+			log.Debug().Msg("updown updated")
 			time.Sleep(5 * time.Minute)
 		}
 	}()
@@ -156,7 +171,7 @@ func main() {
 		defer workstation.Mu.Unlock()
 		workstation.Status = ide0
 		workstation.LastUpdate = time.Now()
-		log.Info().Msg("ide0: " + workstation.Status)
+		log.Debug().Msg("ide0: " + workstation.Status)
 	})
 
 	r.Get("/ide0", func(w http.ResponseWriter, r *http.Request) {
@@ -200,18 +215,24 @@ func main() {
 
 		out := ""
 		status := discord.Status
+		discordOut := ""
 		if status.StatusDesk != "" {
-			out += "Desktop: " + status.StatusDesk + "\n"
+			discordOut += "Desktop: " + status.StatusDesk + "\n"
 		}
 		if status.StatusWeb != "" {
-			out += "Web: " + status.StatusWeb + "\n"
+			discordOut += "Web: " + status.StatusWeb + "\n"
 		}
 		if status.StatusMobile != "" {
-			out += "Mobile: " + status.StatusMobile + "\n"
+			discordOut += "Mobile: " + status.StatusMobile + "\n"
+		}
+		if discordOut == "" {
+			discordOut = "Currently offline" + "\n"
 		}
 		if status.CustomStatus != "" {
-			out += "Custom Status: " + status.CustomStatus + "\n"
+			discordOut += "Custom Status: " + status.CustomStatus + "\n"
 		}
+		out += discordOut
+
 		out += "Last Update: " + status.UpdatedAt
 		fmt.Fprintf(w, out)
 	})

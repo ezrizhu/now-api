@@ -64,5 +64,5 @@ func presenceUpdateHandler(s *discordgo.Session, p *discordgo.PresenceUpdate) {
 	}
 
 	status.UpdatedAt = time.Now().Format("15:04:05 MST")
-	log.Info().Msg("Discord status updated")
+	log.Debug().Msg("Discord status updated")
 }

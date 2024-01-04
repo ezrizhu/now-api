@@ -25,14 +25,14 @@ type SteamProfileResp struct {
 }
 
 type SteamProfile struct {
-	PersonaState  string     `json:"personastate"`
-	PersonaName   string     `json:"personaname"`
-	ProfileUrl    string     `json:"profileurl"`
+	PersonaState  string     `json:"persona_state"`
+	PersonaName   string     `json:"persona_name"`
+	ProfileUrl    string     `json:"profile_url"`
 	Avatar        string     `json:"avatar"`
-	LastLogoff    string     `json:"lastlogoff"`
-	IsGaming      bool       `json:"isgaming"`
-	GameExtraInfo string     `json:"gameextrainfo"`
-	GameUrl       string     `json:"gameurl"`
+	LastLogoff    string     `json:"last_logoff"`
+	IsGaming      bool       `json:"is_gaming"`
+	GameExtraInfo string     `json:"game_extra_info"`
+	GameUrl       string     `json:"game_url"`
 	Mu            sync.Mutex `json:"-"`
 }
 
@@ -84,6 +84,10 @@ func (profile *SteamProfile) update() {
 		profile.IsGaming = true
 		profile.GameExtraInfo = steamStatusResp.Response.Players[0].GameExtraInfo
 		profile.GameUrl = "https://store.steampowered.com/app/" + steamStatusResp.Response.Players[0].GameId
+	} else {
+		profile.IsGaming = false
+		profile.GameExtraInfo = ""
+		profile.GameUrl = ""
 	}
 
 	switch steamStatusResp.Response.Players[0].PersonaState {
