@@ -60,6 +60,9 @@ func presenceUpdateHandler(s *discordgo.Session, p *discordgo.PresenceUpdate) {
 			}
 			status.StatusEmoji = emoji
 			break
+		} else {
+			status.CustomStatus = ""
+			status.StatusEmoji = ""
 		}
 	}
 
