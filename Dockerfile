@@ -1,6 +1,7 @@
 FROM golang:1.20
 
 WORKDIR /app
+ENV TZ="America/New_York"
 
 COPY . .
 
