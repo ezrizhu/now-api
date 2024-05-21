@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"sync"
@@ -41,6 +40,8 @@ type ValMmr struct {
 }
 
 type ValProfile struct {
+	Name        string     `json:"name"`
+	Tag         string     `json:"tag"`
 	CurrentRank string     `json:"current_rank"`
 	HighestRank string     `json:"highest_rank"`
 	Elo         int        `json:"elo"`
@@ -94,11 +95,9 @@ func (profile *ValProfile) update() {
 	profile.Mu.Lock()
 	defer profile.Mu.Unlock()
 
+	profile.Name = valMmrResp.Data.Name
+	profile.Tag = valMmrResp.Data.Tag
 	profile.CurrentRank = valMmrResp.Data.CurrentData.Currenttierpatched
 	profile.Elo = valMmrResp.Data.CurrentData.Elo
 	profile.HighestRank = valMmrResp.Data.HighestRank.PatchedTier
-
-	fmt.Println(profile.CurrentRank)
-	fmt.Println(profile.HighestRank)
-	fmt.Println(profile.Elo)
 }

@@ -224,6 +224,8 @@ func main() {
 		defer valProfile.Mu.Unlock()
 
 		out := ""
+		out += "Username: " + valProfile.Name + "#" + valProfile.Tag + "\n"
+		out += "Region: NA \n"
 		out += "Elo: " + strconv.Itoa(valProfile.Elo) + "\n"
 		out += "Current Rank: " + valProfile.CurrentRank + "\n"
 		out += "Highest Rank: " + valProfile.HighestRank + "\n"
