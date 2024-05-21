@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"sync"
 	"syscall"
 	"time"
@@ -36,6 +37,9 @@ var (
 	steamUrl     string
 	updownUrl    string
 	ideKey       string
+	matchesUrl   string
+	mmrUrl       string
+	valKey       string
 )
 
 func main() {
@@ -62,6 +66,9 @@ func main() {
 	steamUrl = k.String("steam.url")
 	updownUrl = k.String("updown.url")
 	ideKey = k.String("ide.key")
+	matchesUrl = k.String("valorant.matchesUrl")
+	mmrUrl = k.String("valorant.mmrUrl")
+	valKey = k.String("valorant.key")
 
 	dg, err := discordgo.New("Bot " + discordToken)
 	if err != nil {
@@ -85,9 +92,11 @@ func main() {
 	steamProfile := SteamProfile{}
 	cloud := Cloud{}
 	workstation := Workstation{}
+	valProfile := ValProfile{}
 
 	cloud.check()
 	steamProfile.update()
+	valProfile.update()
 	log.Info().Msg("Initialized")
 
 	// run steamProfile.update() every 5 minutes
@@ -98,6 +107,8 @@ func main() {
 			log.Debug().Msg("steam updated")
 			cloud.check()
 			log.Debug().Msg("updown updated")
+			valProfile.update()
+			log.Debug().Msg("valorant updated")
 			time.Sleep(5 * time.Minute)
 		}
 	}()
@@ -204,6 +215,18 @@ func main() {
 			out += workstation.Status + "\n"
 		}
 		out += "Last Update: " + workstation.LastUpdate.Format("15:04:05 MST")
+
+		fmt.Fprintf(w, out)
+	})
+
+	r.Get("/val.text", func(w http.ResponseWriter, r *http.Request) {
+		valProfile.Mu.Lock()
+		defer valProfile.Mu.Unlock()
+
+		out := ""
+		out += "Elo: " + strconv.Itoa(valProfile.Elo) + "\n"
+		out += "Current Rank: " + valProfile.CurrentRank + "\n"
+		out += "Highest Rank: " + valProfile.HighestRank + "\n"
 
 		fmt.Fprintf(w, out)
 	})
