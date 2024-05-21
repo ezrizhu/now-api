@@ -45,27 +45,30 @@ func presenceUpdateHandler(s *discordgo.Session, p *discordgo.PresenceUpdate) {
 	status.StatusMobile = string(p.ClientStatus.Mobile)
 
 	for _, activity := range p.Activities {
-		if activity.Type != discordgo.ActivityTypeCustom {
-			continue
-		}
-
-		if activity.Name == "Custom Status" {
-			status.CustomStatus = activity.State
-			emoji := "https://cdn.discordapp.com/emojis/"
-			emoji += activity.Emoji.ID
-			if activity.Emoji.Animated {
-				emoji += ".gif"
-			} else {
-				emoji += ".png"
-			}
-			status.StatusEmoji = emoji
+		if activity.Type == discordgo.ActivityTypeGame {
+			status.CustomStatus = "Playing " + activity.Name
 			break
-		} else {
-			status.CustomStatus = ""
-			status.StatusEmoji = ""
 		}
-	}
 
+		if activity.Type == discordgo.ActivityTypeCustom {
+			if activity.Name == "Custom Status" {
+				status.CustomStatus = activity.State
+				emoji := "https://cdn.discordapp.com/emojis/"
+				emoji += activity.Emoji.ID
+				if activity.Emoji.Animated {
+					emoji += ".gif"
+				} else {
+					emoji += ".png"
+				}
+				status.StatusEmoji = emoji
+
+				break
+			}
+		}
+
+		status.CustomStatus = ""
+		status.StatusEmoji = ""
+	}
 	status.UpdatedAt = time.Now().Format("15:04:05 MST")
 	log.Debug().Msg("Discord status updated")
 }
