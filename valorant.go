@@ -62,6 +62,7 @@ func (profile *ValProfile) update() {
 	mmrResp, err := client.Do(mmrReq)
 	if err != nil {
 		log.Error().Err(err).Msg("Error sending mmr req")
+		return
 	}
 
 	defer mmrResp.Body.Close()
